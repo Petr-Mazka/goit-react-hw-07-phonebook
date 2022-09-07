@@ -1,18 +1,16 @@
 import PropTypes from "prop-types";
-import { useSelector, useDispatch } from 'react-redux';
-import { deleteContact, getContacts, getFilter } from '../../../redux/slicer';
+import { useSelector } from 'react-redux';
+import { getFilter } from '../../../redux/slicer';
 import Filter from "../Filter/Filter";
 import css from "./ContactsList.module.css";
+import { useDeleteContactMutation } from "../../../redux/api";
 
-const ContactsList = () => {
+const ContactsList = ({ contacts }) => {
+    console.log(contacts);
+    
+    const [deleteContact, { isLoading: isDeleting }] = useDeleteContactMutation();
 
-    const dispatch = useDispatch();
-    const contacts = useSelector(getContacts);
     const filter = useSelector(getFilter);
-
-    const removeContact = (contactId) => {
-        dispatch(deleteContact(contactId));
-    }
 
     const filtredContact = () => {
     const normalizedFilter = filter.toLowerCase();
@@ -31,8 +29,8 @@ const ContactsList = () => {
         {contactsList.map(contact => (
             <li className={css.item} key={contact.id}>
             <span>{contact.name}:</span>
-            <span>{contact.number}</span>
-            <button type="button" className={css.deleteButton} onClick={() => removeContact(contact.id)}>Delete</button>
+            <span>{contact.phone}</span>
+            <button type="button" className={css.deleteButton} onClick={() => deleteContact(contact.id)}>{isDeleting ? 'Deleting...' : 'Delete'}</button>
             </li>
         ))}
         </ul>

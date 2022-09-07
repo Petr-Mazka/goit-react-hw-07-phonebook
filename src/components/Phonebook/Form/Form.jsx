@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from "react";
-import { useDispatch, useSelector } from 'react-redux';
 import { nanoid } from 'nanoid/non-secure'
-import { addContact, getContacts } from "../../../redux/slicer";
+import { useAddContactMutation, useGetContactsQuery } from "../../../redux/api";
 import Input from "../Input/Input";
 import Label from "../Label/Label";
 import css from "./Form.module.css";
@@ -13,8 +12,8 @@ const Form = () => {
     const nameInputId = useMemo(() => nanoid(), []);
     const numberInputId = useMemo(() => nanoid(), []);
 
-    const dispatch = useDispatch();
-    const contacts = useSelector(getContacts);
+    const { data: contacts } = useGetContactsQuery();
+    const [addContact, { isLoading }] = useAddContactMutation();
 
     const formReset = () => {
         setName("");
@@ -24,14 +23,13 @@ const Form = () => {
     const handleSubmit = (event) => {
         event.preventDefault();
         const newContact = {
-            id: nanoid(),
             name: name,
             number: number
         }
 
         contacts.find(contact => contact.name.toLowerCase() === name.toLowerCase()) ?
             alert(`${name} is already in contacts`) :
-            dispatch(addContact(newContact));
+            (addContact(newContact));
         formReset();
     }
 
@@ -59,7 +57,7 @@ const Form = () => {
                 <Label text="Number" htmlFor={numberInputId}>
                     <Input type="tel" name="number" id={numberInputId} pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}" title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +" value={number} onChange={handleChange} />
                 </Label>
-                <button className={css.formButton} type="submit">Add</button>
+                <button className={css.formButton} type="submit" disabled={isLoading}>Add</button>
             </form>
             </>
         )
